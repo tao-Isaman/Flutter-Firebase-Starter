@@ -1,5 +1,3 @@
-
-
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
@@ -70,6 +68,9 @@ class _MyCustomFormState extends State<MyCustomForm> {
                   pd.name = name.text ;
                   pd.price = something.text;
                   createData(pd);
+                  print(pd.id);
+                  print(pd.name);
+                  print(pd.price);
                 },
                 child: Text('Create',
                   style: TextStyle(color:Colors.black ),
@@ -106,8 +107,9 @@ class _MyCustomFormState extends State<MyCustomForm> {
               style: TextStyle(fontSize: 12),
             ),
             Text(
-              'something: ${doc.data['something']}', 
+              'something: ${doc.data['name2']}', 
               style: TextStyle(fontSize: 12),
+              
             ),
             SizedBox(height: 12),
             Row(
@@ -153,8 +155,8 @@ class Product {
     final  db = Firestore.instance;
    // _formKey.currentState.save();
       Map<String ,String> data = <String , String> {
-      "name" : object.price ,
-      "name2": object.name
+      "name" : object.name ,
+      "name2": object.price
     };  
     print(object.name);
     print(object.price);
