@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutterfirsebase/Reads.dart';
+import 'package:flutterfirsebase/UpdateDateFromFireStoreState.dart';
 
 main() {
   runApp(Starter());
@@ -25,6 +26,8 @@ class _MyCustomFormState extends State<MyCustomForm> {
   final name = TextEditingController();
   final something = TextEditingController();
 
+  ///update
+
   @override
   void dispose() {
     name.dispose();
@@ -36,75 +39,88 @@ class _MyCustomFormState extends State<MyCustomForm> {
   Widget build(BuildContext context) {
     final db = Firestore.instance;
     return Scaffold(
-      appBar: AppBar(
-          title: Text('Flutter Firebase Starter'),
-          backgroundColor: Color.fromRGBO(255, 34, 0, 0.6)),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          children: <Widget>[
-            TextField(
-              controller: name,
-              decoration: InputDecoration(
-                border: InputBorder.none,
-                hintText: 'name',
-                fillColor: Colors.grey[300],
-                filled: true,
-              ),
+        appBar: AppBar(
+            title: Text('Flutter Firebase Starter'),
+            backgroundColor: Color.fromRGBO(255, 34, 0, 0.6)),
+        body: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: ListView(children: <Widget>[
+            Column(
+              children: <Widget>[
+                TextField(
+                  controller: name,
+                  decoration: InputDecoration(
+                    border: InputBorder.none,
+                    hintText: 'name',
+                    fillColor: Colors.grey[300],
+                    filled: true,
+                  ),
+                ),
+                TextField(
+                  controller: something,
+                  decoration: InputDecoration(
+                    border: InputBorder.none,
+                    hintText: 'something',
+                    fillColor: Colors.grey[300],
+                    filled: true,
+                  ),
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: <Widget>[
+                    RaisedButton(
+                      onPressed: () {
+                        Product pd = Product();
+                        pd.id = "1234";
+                        pd.name = name.text;
+                        pd.price = something.text;
+                        createData(pd);
+                        print(pd.id);
+                        print(pd.name);
+                        print(pd.price);
+                      },
+                      child: Text(
+                        'Create',
+                        style: TextStyle(color: Colors.black),
+                      ),
+                      color: Colors.green,
+                    ),
+                    RaisedButton(
+                      child: Text('read'),
+                      onPressed: () {
+                        MaterialPageRoute materialPageRoute = MaterialPageRoute(
+                            builder: (BuildContext context) => Reads());
+                        Navigator.of(context).push(materialPageRoute);
+                      },
+                    ),
+                    RaisedButton(
+                      color: Colors.orange,
+                      child: Text('Update'),
+                      onPressed: () {
+                        MaterialPageRoute materialPageRoute = MaterialPageRoute(
+                            builder: (BuildContext context) => UpdateDataFromFireStore());
+                        Navigator.of(context).push(materialPageRoute);
+                      },
+                    )
+                  ],
+                ),
+                StreamBuilder<QuerySnapshot>(
+                  stream: db.collection('CRUD').snapshots(),
+                  builder: (context, snapshot) {
+                    if (snapshot.hasData) {
+                      return Column(
+                          children: snapshot.data.documents
+                              .map((doc) => buildItem(doc))
+                              .toList());
+                    } else {
+                      return SizedBox();
+                    }
+                  },
+                )
+              ],
             ),
-            TextField(
-              controller: something,
-              decoration: InputDecoration(
-                border: InputBorder.none,
-                hintText: 'something',
-                fillColor: Colors.grey[300],
-                filled: true,
-              ),
-            ),
-            RaisedButton(
-              onPressed: () {
-                Product pd = Product();
-                pd.id = "1234";
-                pd.name = name.text;
-                pd.price = something.text;
-                createData(pd);
-                print(pd.id);
-                print(pd.name);
-                print(pd.price);
-              },
-              child: Text(
-                'Create',
-                style: TextStyle(color: Colors.black),
-              ),
-              color: Colors.green,
-            ),
-
-            RaisedButton(
-              child: Text('read'),
-              onPressed: () {
-                MaterialPageRoute materialPageRoute = MaterialPageRoute(
-                    builder: (BuildContext context) => Reads());
-                Navigator.of(context).push(materialPageRoute);
-              },
-            ),
-            
-            StreamBuilder<QuerySnapshot>(
-              stream: db.collection('CRUD').snapshots(),
-              builder: (context, snapshot) {
-                if (snapshot.hasData) {
-                  return Column(
-                      children: snapshot.data.documents
-                          .map((doc) => buildItem(doc))
-                          .toList());
-                } else {
-                  return SizedBox();
-                }
-              },
-            )
-          ],
-        ),
-      ),
-    );
+          ]),
+        ));
   }
 
   Card buildItem(DocumentSnapshot doc) {
@@ -127,6 +143,7 @@ class _MyCustomFormState extends State<MyCustomForm> {
               mainAxisAlignment: MainAxisAlignment.end,
               children: <Widget>[
                 SizedBox(width: 8),
+                
                 FlatButton(
                   onPressed: () => deleteData(doc),
                   child: Text('Delete'),
@@ -182,3 +199,5 @@ void deleteData(DocumentSnapshot doc) async {
   final db = Firestore.instance;
   await db.collection('CRUD').document(doc.documentID).delete();
 }
+
+//Update//
